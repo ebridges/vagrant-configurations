@@ -4,9 +4,10 @@
 VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
-  # Define and configure private servers
+  # Define and configure public server
   public_server_name = 'public100'
   public_server_ip = '10.0.0.100'
+  # Define and configure private servers
   private_servers = { 
     :private010 => '10.0.0.10',
     :private011 => '10.0.0.11'
