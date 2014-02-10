@@ -1,0 +1,40 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  # Define and configure private servers
+  public_server_name = 'public100'
+  public_server_ip = '10.0.0.100'
+  private_servers = { 
+    :private010 => '10.0.0.10',
+    :private011 => '10.0.0.11'
+  }
+  
+  private_servers.each do |private_server_name, private_server_ip|
+    config.vm.define private_server_name do |private_server_config|
+      private_server_config.vm.box = "precise64"
+      private_server_config.vm.host_name = private_server_name.to_s
+      private_server_config.vm.network :private_network, ip: private_server_ip
+      private_server_config.vm.provision "shell", inline: "apt-get update && apt-get --yes install nginx"
+      private_server_config.vm.provision :shell, :path => "provision-private-nginx.sh", :args => private_server_name.to_s
+    end
+  end
+  
+  # Configure load balancer
+  config.vm.define public_server_name do |load_balancer_config|
+    load_balancer_config.vm.box = "precise64"
+    load_balancer_config.vm.host_name = public_server_name.to_s
+    # public interface on the network, using dhcp
+    load_balancer_config.vm.network :public_network
+    # private interface on the network
+    load_balancer_config.vm.network :private_network, ip: public_server_ip
+    load_balancer_config.vm.provision :shell, inline: "apt-get update && apt-get --yes install nginx"
+    # Create an argument vector: public_host, private_ip1, private_ip2
+    argv = private_servers.values
+    argv.unshift(public_server_name)
+    load_balancer_config.vm.provision :shell, :path => "provision-public-nginx.sh", :args => argv
+  end
+end
+
