@@ -27,3 +27,5 @@ EOF
 
 /etc/init.d/nginx restart
 
+IP=`ifconfig eth1 | grep "inet addr" | awk -F: '{print $2}' | awk '{print $1}'`
+echo "Public URL: http://${IP}/"
