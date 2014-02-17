@@ -1,3 +1,4 @@
 .vagrant
 *.pem
-*credentials.csv
+credentials.csv
+vagrant_ansible_inventory_default
