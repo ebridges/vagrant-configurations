@@ -2,3 +2,4 @@
 *.pem
 credentials.csv
 vagrant_ansible_inventory_default
+env.sh
