@@ -1,0 +1,6 @@
+---
+# nginx
+nginx_etc_dir: '/etc/nginx/sites-available'
+nginx_docroot: '/var/www/nginx-default'
+nginx_port: 80
+

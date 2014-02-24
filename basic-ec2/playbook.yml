@@ -1,6 +1,20 @@
 ---
 - hosts: all
+  vars_files:
+    - vars/settings-default.yml
   sudo: True
   tasks:
-    - name: Install htop
-      apt: pkg=htop state=installed
+    - name: Install packages
+      apt: pkg=$item state=installed
+      with_items:
+       - nginx
+    - name: "Create default docroot for ${ansible_eth0.ipv4.address}"
+      file: path=${nginx_docroot} state=directory mode=0755
+    - name: "Provision default home page for ${ansible_eth0.ipv4.address}"
+      action: template src=templates/index.html.j2 dest=${nginx_docroot}
+    - name: "Provision http server configuration for ${ansible_eth0.ipv4.address}"
+      action: template src=templates/nginx-default.j2 dest=${nginx_etc_dir}/default
+      notify: Restart nginx
+  handlers:
+    - name: Restart nginx
+      action: service name=nginx state=restarted

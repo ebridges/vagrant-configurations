@@ -1,0 +1,9 @@
+server {
+  listen 80;
+  server_name {{ ansible_eth0.ipv4.address }};
+
+  location / {
+    root   {{ nginx_port }};
+    index  index.html index.htm;
+  }
+}
