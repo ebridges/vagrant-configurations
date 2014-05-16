@@ -1,0 +1,29 @@
+---
+  - name: configure firewall to allow psql
+    ufw: rule=allow port=5432 proto=tcp
+
+  - name: configure firewall to allow ssh from local network
+    ufw: rule=allow src=10.0.0.0/23 port=22 proto=tcp
+
+  - name: configure firewall to deny everything else
+    ufw: state=enabled policy=reject
+
+  - name: install python-pycurl
+    apt: pkg=python-pycurl state=latest
+    sudo: yes
+
+  - name: add postgresql repos
+    apt_repository: repo="deb http://apt.postgresql.org/pub/repos/apt/ precise-pgdg main"
+
+  - name: add postgresql repo key
+    apt_key: url="https://www.postgresql.org/media/keys/ACCC4CF8.asc"
+
+  - name: update apt caches
+    apt: update_cache=yes
+
+  - name: install postgresql
+    apt: pkg=postgresql-9.3
+    notify: restart postgresql
+
+  - name: ensure postgresql is running and enabled
+    service: name=postgresql state=running enabled=yes

@@ -1,0 +1,81 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+DEFAULT_BRIDGE = 'en0: Wi-Fi (AirPort)'
+
+BALANCER01  = '10.0.0.100'
+BASTION01   = '10.0.0.10'
+WEBSERVER01 = '10.0.0.101'
+WEBSERVER02 = '10.0.0.102'
+DATABASE01  = '10.0.1.100'
+
+Vagrant.configure("2") do |config|
+
+  config.vm.provider :virtualbox do |vb, override|
+    override.vm.box = "precise64"
+    override.vm.box_url = "http://files.vagrantup.com/precise64.box"
+  end
+
+  config.vm.define 'bastion01' do |config|
+    config.vm.hostname = 'bastion01'
+    config.vm.network :public_network, :bridge => DEFAULT_BRIDGE
+    config.vm.network :private_network, ip: BASTION01
+    config.ssh.forward_agent = true
+    config.vm.provision :ansible do |ansible|
+      ansible.inventory_path = 'provisioning/hosts-inventory.ini'
+      ansible.limit = 'bastions'
+      ansible.playbook = 'provisioning/bastions.yml'
+    end
+  end
+
+  config.vm.define 'balancer01' do |config|
+    config.vm.hostname = 'balancer01'
+    config.vm.network :public_network, :bridge => DEFAULT_BRIDGE
+    config.vm.network :private_network, ip: BALANCER01
+    config.ssh.forward_agent = true
+    config.vm.provision :ansible do |ansible|
+      ansible.inventory_path = 'provisioning/hosts-inventory.ini'
+      ansible.limit = 'balancers'
+      ansible.playbook = 'provisioning/balancers.yml'
+    end
+  end
+
+ # server_configs["balancers"].each do |balancer|
+ #   config.vm.define balancer["host"] do |config|
+ #     config.vm.hostname = balancer["host"]
+ #     config.vm.network :public_network, :bridge => DEFAULT_BRIDGE
+ #     config.vm.network :private_network, ip: balancer["ip"]
+ #     config.vm.provision :ansible do |ansible|
+ #       ansible.verbose = true
+ #       ansible.inventory_path = 'provisioning/hosts-inventory.ini'
+ #       ansible.playbook = 'provisioning/balancers.yml'
+ #     end
+ #   end
+ # end
+
+ # server_configs["webservers"].each do |webserver|
+ #   config.vm.define webserver["host"] do |config|
+ #     config.vm.hostname = webserver["host"]
+ #     config.vm.network :public_network, :bridge => DEFAULT_BRIDGE
+ #     config.vm.network :private_network, ip: webserver["ip"]
+ #     config.vm.provision :ansible do |ansible|
+ #       ansible.verbose = true
+ #       ansible.inventory_path = 'provisioning/hosts-inventory.ini'
+ #       ansible.playbook = 'provisioning/webservers.yml'
+ #     end
+ #   end
+ # end
+
+ # server_configs["databases"].each do |database|
+ #   config.vm.define database["host"] do |config|
+ #     config.vm.hostname = database["host"]
+ #     config.vm.network :private_network, ip: database["ip"]
+ #     config.vm.provision :ansible do |ansible|
+ #       ansible.verbose = true
+ #       ansible.inventory_path = 'provisioning/hosts-inventory.ini'
+ #       ansible.limit = 'databases'
+ #       ansible.playbook = 'provisioning/databases.yml'
+ #     end
+ #   end
+ # end
+end

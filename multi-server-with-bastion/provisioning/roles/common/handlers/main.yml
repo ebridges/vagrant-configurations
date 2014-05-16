@@ -1,0 +1,9 @@
+---
+  - name: restart ufw
+    service: name=ufw state=restarted
+
+  - name: restart ntpd
+    service: name=ntp state=restarted
+
+  - name: restart sshd
+    service: name=ssh state=restarted

@@ -1,0 +1,8 @@
+---
+- hosts: balancer*
+
+  sudo: True
+
+  roles:
+    - common
+    - balancers

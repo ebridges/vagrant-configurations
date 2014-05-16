@@ -1,0 +1,9 @@
+---
+- hosts: database*
+
+  sudo: True
+
+  roles:
+      - common
+      - databases
+

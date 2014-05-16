@@ -1,0 +1,12 @@
+---
+  - name: configure firewall to allow http
+    ufw: rule=allow port=80 proto=tcp
+
+  - name: configure firewall to allow https
+    ufw: rule=allow port=443 proto=tcp
+
+  - name: configure firewall to allow ssh from local network
+    ufw: rule=allow src=10.0.0.0/16 port=22 proto=tcp
+
+  - name: configure firewall to deny everything else
+    ufw: state=enabled policy=deny

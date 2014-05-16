@@ -1,0 +1,14 @@
+---
+- hosts: webserver*
+
+  vars:
+    user: www-data
+    worker_processes: $ansible_processor_count
+    pid: /var/run/nginx.pid
+    worker_connections: 768
+
+  sudo: True
+
+  roles:
+    - common
+    - webservers

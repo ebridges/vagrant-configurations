@@ -1,0 +1,46 @@
+---
+  - name: update apt caches every 3600s
+    apt: update_cache=yes cache_valid_time=3600
+
+# TODO: base this on a parameter -- takes a long time
+#  - name: Upgrade APT to the lastest packages
+#    action: apt upgrade=safe
+
+  - name: install latest ufw
+    apt: pkg=ufw state=latest
+    notify: restart ufw
+
+  - name: install latest ntpd
+    apt: pkg=ntp state=latest
+    notify: restart ntpd
+
+  - name: configure daily time synch
+    template: src=ntpdate-cron-daily.j2 dest=/etc/cron.daily/ntpdate mode=0755
+
+  - name: ensure ntpd is running and enabled
+    service: name=ntp state=running enabled=yes
+
+  - name: install latest openssh-server
+    apt: pkg=openssh-server state=latest
+
+  - name: configure ssh to allow agent forwarding
+    sudo: True
+    lineinfile: destfile=/etc/ssh/ssh_config regexp="^ForwardAgent" line="ForwardAgent yes" state=present
+
+  - name: configure sshd to allow tcp forwarding
+    sudo: True
+    lineinfile: destfile=/etc/ssh/sshd_config regexp="^AllowTcpForwarding" line="AllowTcpForwarding yes" state=present
+    notify: restart sshd
+
+  - name: configure sshd to disable passwd auth
+    sudo: True
+    lineinfile: destfile=/etc/ssh/sshd_config regexp="^PasswordAuthentication" line="PasswordAuthentication no" state=present
+    notify: restart sshd
+
+  - name: ensure sshd is running and enabled
+    service: name=ssh state=running enabled=yes
+
+  - name: add admin user account and deploy pubkey
+    user: name=ebridges comment="Edward Bridges" uid=501 shell=/bin/bash groups=admin
+  - name: deploy admin public key
+    authorized_key: user=ebridges key="{{ lookup('file', '/Users/ebridges/.ssh/id_rsa.pub') }}"

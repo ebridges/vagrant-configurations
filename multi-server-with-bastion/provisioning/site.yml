@@ -1,0 +1,6 @@
+---
+# file: site.yml
+- include: bastions.yml
+- include: balancers.yml
+- include: databases.yml
+- include: webservers.yml
